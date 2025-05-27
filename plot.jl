@@ -3,9 +3,9 @@ using Plots, CSV, DataFrames
 
 p = nothing
 
-ts_static = CSV.read("static.csv", DataFrame)
-ts_dynamic_fixed_dom = CSV.read("dynamic_fixed.csv", DataFrame)
-ts_dynamic_var_dom = CSV.read("dynamic_variable.csv", DataFrame)
+ts_static = CSV.read("data/static.csv", DataFrame)
+ts_dynamic_fixed_dom = CSV.read("data/dynamic_fixed.csv", DataFrame)
+ts_dynamic_var_dom = CSV.read("data/dynamic_variable.csv", DataFrame)
 
 Ns = [10^i for i in 3:5]
 
@@ -20,7 +20,7 @@ function plot_vals(Ns, ts, title, ylabel, pname)
             plot!(Ns, ts[!, k], marker=:circle, label=k)
         end
     end
-    savefig(p, pname)
+    savefig(p, "figures/" * pname)
 end
 
 plot_vals(Ns, ts_static, "Static Distribution", 

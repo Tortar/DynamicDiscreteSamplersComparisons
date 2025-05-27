@@ -1,7 +1,7 @@
 
 #!/usr/bin/env bash
 
-rm -f static.csv dynamic_fixed.csv dynamic_variable.csv
+rm -f data/static.csv data/dynamic_fixed.csv data/dynamic_variable.csv
 
 julia compare.jl
 

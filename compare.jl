@@ -28,7 +28,7 @@ for N in Ns
     push!(ts_static["ALIAS_TABLE"], t_static_AL)
 end
 df = DataFrame(ts_static)
-file = "static.csv"
+file = "data/static.csv"
 CSV.write(file, df; append = isfile(file), writeheader = true)
 
 ts_dynamic_fixed_dom = Dict(
@@ -45,7 +45,7 @@ for N in Ns
     push!(ts_dynamic_fixed_dom["BUS_opt"], t_dynamic_fixed_dom_BUS_opt)
 end
 df = DataFrame(ts_dynamic_fixed_dom)
-file = "dynamic_fixed.csv"
+file = "data/dynamic_fixed.csv"
 CSV.write(file, df; append = isfile(file), writeheader = true)
 
 ts_dynamic_var_dom = Dict(
@@ -64,5 +64,5 @@ for N in Ns
     push!(ts_dynamic_var_dom["BUS_opt"], t_dynamic_var_dom_BUS_opt)
 end
 df = DataFrame(ts_dynamic_var_dom)
-file = "dynamic_variable.csv"
+file = "data/dynamic_variable.csv"
 CSV.write(file, df; append = isfile(file), writeheader = true)
