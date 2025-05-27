@@ -1,7 +1,7 @@
 
 using DynamicDiscreteSamplers
 
-function initialize_weights_EBUS(WType, N)
+function initialize_weights_EBUS(rng, WType, N)
 	w = WType(N)
 	for i in eachindex(w)
 		w[i] = abs(randn(rng))
