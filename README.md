@@ -1,0 +1,2 @@
+# DynamicDiscreteSamplersComparison
+Comparison between different implementations of Dynamic Discrete Samplers
