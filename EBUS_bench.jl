@@ -1,8 +1,7 @@
 
 using DynamicDiscreteSamplers
-using Random, BenchmarkTools, Chairmarks
 
-function initialize_weights!(WType, N)
+function initialize_weights_EBUS(WType, N)
 	w = WType(N)
 	for i in eachindex(w)
 		w[i] = abs(randn(rng))
@@ -10,9 +9,9 @@ function initialize_weights!(WType, N)
 	return w
 end
 
-static_samples(rng, w, N) = rand(rng, w, N)
+static_samples_EBUS(rng, ds, N) = rand(rng, ds, N)
 
-function dynamic_samples_fixed_dom(rng, w, N)
+function dynamic_samples_fixed_dom_EBUS(rng, w, N)
 	s = Vector{Int}(undef, N)
 	@inbounds for i in 1:N
 		s[i] = rand(rng, w)
@@ -21,8 +20,8 @@ function dynamic_samples_fixed_dom(rng, w, N)
 	return s
 end
 
-function dynamic_samples_variable_dom(rng, w, N)
-	s = Vector{Int}(undef, 10*N)
+function dynamic_samples_variable_dom_EBUS(rng, w, N)
+	s = Vector{Int}(undef, 9*N)
 	k = N
 	@inbounds for i in 1:9*N
 		if N+i > k
