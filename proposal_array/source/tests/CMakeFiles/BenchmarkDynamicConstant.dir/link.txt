@@ -1,1 +1,0 @@
-/usr/bin/c++  -march=native -ftemplate-depth=100000 -W -Wall -O3 -DNDEBUG CMakeFiles/BenchmarkDynamicConstant.dir/BenchmarkDynamicConstant.cpp.o -o BenchmarkDynamicConstant 
