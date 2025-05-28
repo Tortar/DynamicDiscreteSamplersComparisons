@@ -14,10 +14,10 @@ cd ..
 
 cd proposal_array
 rm -r build
-mkdir build && cd build    # out-of-source build
+mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build .               # or: make -j$(nproc)
-./bench_sampling              # run the generated executable
+cmake --build .
+./bench_sampling
 cd ..
 cd ..
 

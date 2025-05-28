@@ -1,9 +1,9 @@
 
 using Random, BenchmarkTools, Chairmarks, CSV, DataFrames, Statistics
 
-include("EBUS_bench.jl")
-include("BUS_optimized_bench.jl")
-include("ALIAS_TABLE_bench.jl")
+include("ebus/EBUS_bench.jl")
+include("bus_opt/BUS_optimized_bench.jl")
+include("alias_table/ALIAS_TABLE_bench.jl")
 
 median_time(b) = median([x.time for x in b.samples])
 
