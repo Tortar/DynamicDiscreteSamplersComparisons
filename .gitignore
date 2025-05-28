@@ -3,4 +3,5 @@ target/
 forest_of_trees/Cargo.lock
 proposal_array/build
 proposal_array/CMakeFiles
+Manifest.toml
 
