@@ -8,6 +8,19 @@
 #include <string>
 #include "DynamicProposalArrayStar.hpp"
 
+double median(std::vector<double> v) {
+    if (v.empty()) throw std::domain_error("median of empty vector");
+    std::sort(v.begin(), v.end());
+    size_t n = v.size();
+    if (n % 2 == 1) {
+        // odd number of elements
+        return v[n/2];
+    } else {
+        // even number of elements: average the two middle
+        return 0.5 * (v[n/2 - 1] + v[n/2]);
+    }
+}
+
 void append_column_in_place(const std::string& file_path, const std::vector<double>& vec) {
     std::ifstream fin(file_path);
     if (!fin.is_open()) {
@@ -119,7 +132,7 @@ std::vector<size_t> benchmark_sample_dynamic_variable(sampling::DynamicProposalA
 
 int main() {
     std::mt19937 rng(42);
-    const int repetitions = 5;
+    int repetitions = 50;
 
     std::vector<double> static_times;
     std::vector<double> dynamic_fixed_times;
@@ -128,54 +141,52 @@ int main() {
     for (int exp = 3; exp <= 5; ++exp) {
         size_t size = static_cast<size_t>(std::pow(10, exp));
 
-        double total_static_ns = 0;
-        double total_dynamic_fixed_ns = 0;
-        double total_dynamic_variable_ns = 0;
+        std::vector<double> static_ns;
+        std::vector<double> dynamic_fixed_ns;
+        std::vector<double> dynamic_variable_ns;
+
+        if (exp == 6) {repetitions /= 10;}
+
+        auto sampler1 = setup_sampler(size, rng);
 
         for (int rep = 1; rep <= repetitions; ++rep) {
-
-            auto sampler1 = setup_sampler(size, rng);
 
             // Benchmark static sampling
             auto fixed_start = std::chrono::high_resolution_clock::now();
             auto fixed_samples = benchmark_sample_static(sampler1, rng, size);
             auto fixed_end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double, std::nano> fixed_time = fixed_end - fixed_start;
-            total_static_ns += fixed_time.count();
+            static_ns.push_back(fixed_time.count() / size);
+        }
 
-            auto sampler2 = setup_sampler(size, rng);
+        auto sampler2 = setup_sampler(size, rng);
+
+        for (int rep = 1; rep <= repetitions; ++rep) {
 
             // Benchmark dynamic fixed sampling
             auto variable_start = std::chrono::high_resolution_clock::now();
             auto variable_samples = benchmark_sample_dynamic_fixed(sampler2, rng, size);
             auto variable_end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double, std::nano> variable_time = variable_end - variable_start;
-            total_dynamic_fixed_ns += variable_time.count();
+            dynamic_fixed_ns.push_back(variable_time.count() / size);
+        }
+        
+        auto sampler3 = setup_sampler(size, rng);
 
-            auto sampler3 = setup_sampler(size, rng);
-            
+        for (int rep = 1; rep <= repetitions; ++rep) {
+  
             // Benchmark dynamic variable sampling
             auto variable2_start = std::chrono::high_resolution_clock::now();
             auto variable2_samples = benchmark_sample_dynamic_variable(sampler3, rng, size);
             auto variable2_end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double, std::nano> variable2_time = variable2_end - variable2_start;
-            total_dynamic_variable_ns += variable2_time.count();
+            dynamic_variable_ns.push_back(variable2_time.count() / (9*size));
         }
 
-        // Compute average times per element/sample
-        double avg_static_per_sample = (total_static_ns / repetitions) / size;
-        double avg_dynamic_fixed_per_sample = (total_dynamic_fixed_ns / repetitions) / size;
-        double avg_dynamic_variable_per_sample = (total_dynamic_variable_ns / repetitions) / (9*size);
+        static_times.push_back(median(static_ns));
+        dynamic_fixed_times.push_back(median(dynamic_fixed_ns));
+        dynamic_variable_times.push_back(median(dynamic_variable_ns));
 
-        static_times.push_back(avg_static_per_sample);
-        dynamic_fixed_times.push_back(avg_dynamic_fixed_per_sample);
-        dynamic_variable_times.push_back(avg_dynamic_variable_per_sample);
-
-        std::cout << "Size: " << size
-                  << ", Avg Static sampling: " << avg_static_per_sample << " ns/sample"
-                  << ", Avg Dynamic Fixed sampling: " << avg_dynamic_fixed_per_sample << " ns/sample"
-                  << ", Avg Dynamic Variable sampling: " << avg_dynamic_variable_per_sample << " ns/sample"
-                  << std::endl;
     }
 
     const std::string data_dir = "../../data/";
@@ -189,7 +200,6 @@ int main() {
         std::cerr << "Error: " << e.what() << "\n";
         return 1;
     }
-
 
     return 0;
 }

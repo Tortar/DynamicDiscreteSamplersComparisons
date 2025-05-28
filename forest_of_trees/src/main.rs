@@ -102,68 +102,85 @@ fn append_column_to_csv(
     Ok(())
 }
 
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
     let mut rng = Pcg64::seed_from_u64(42);
     let sample_sizes: Vec<usize> = (3..=5).map(|i| 10usize.pow(i)).collect();
-    let repetitions = 5;
+    let mut repetitions = 50;
 
     // --- 1) static (fixed) sampling ---
-    let mut static_avgs = Vec::with_capacity(sample_sizes.len());
+    let mut static_medians = Vec::with_capacity(sample_sizes.len());
     for &size in &sample_sizes {
+        if size > 100000 {repetitions = 5;}
         let dw_index = setup(&mut rng, size);
-        let mut total_ns: u128 = 0;
+        let mut times: Vec<u128> = Vec::with_capacity(repetitions);
         for _ in 0..repetitions {
             let idx = black_box(&dw_index);
             let n   = black_box(size);
             let start = Instant::now();
             sample_fixed(&mut rng, idx, n);
-            total_ns += start.elapsed().as_nanos();
+            times.push(start.elapsed().as_nanos());
         }
-        let avg = total_ns as f64 / (repetitions as f64 * size as f64);
+        times.sort();
+        let median_ns = if repetitions % 2 == 0 {
+            (times[repetitions / 2 - 1] + times[repetitions / 2]) / 2
+        } else {
+            times[repetitions / 2]
+        };
+        let median_per_sample = median_ns as f64 / size as f64;
         println!(
-            "Size: {:>8}, Fixed ({} reps): {:.2} ns/sample",
-            size, repetitions, avg
+            "Size: {:>8}, Fixed ({} reps): {:.2} ns/sample (median)",
+            size, repetitions, median_per_sample
         );
-        static_avgs.push(avg);
+        static_medians.push(median_per_sample);
     }
 
-    // write static_avgs out
+    // write static_medians out
     let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
     let static_csv = manifest_dir
         .parent().unwrap()
         .join("data")
         .join("static.csv");
-    append_column_to_csv(&static_csv, "FOREST_OF_TREES", &static_avgs)
+    append_column_to_csv(&static_csv, "FOREST_OF_TREES", &static_medians)
         .expect("Failed to append FOREST_OF_TREES to static.csv");
 
+    repetitions = 50;
+
     // --- 2) variable sampling ---
-    let mut variable_avgs = Vec::with_capacity(sample_sizes.len());
+    let mut variable_medians = Vec::with_capacity(sample_sizes.len());
     for &size in &sample_sizes {
-        let mut total_ns: u128 = 0;
+
+        if size > 100000 {repetitions = 5;}
+        let mut times: Vec<u128> = Vec::with_capacity(repetitions);
         for _ in 0..repetitions {
             let mut dw_index = setup(&mut rng, size);
             let idx = black_box(&mut dw_index);
             let n   = black_box(size);
             let start = Instant::now();
             sample_variable(&mut rng, idx, n);
-            total_ns += start.elapsed().as_nanos();
+            times.push(start.elapsed().as_nanos());
         }
-        let avg = total_ns as f64 / (repetitions as f64 * size as f64);
+        times.sort();
+        let median_ns = if repetitions % 2 == 0 {
+            (times[repetitions / 2 - 1] + times[repetitions / 2]) / 2
+        } else {
+            times[repetitions / 2]
+        };
+        let median_per_sample = median_ns as f64 / size as f64;
         println!(
-            "Size: {:>8}, Variable ({} reps): {:.2} ns/sample",
-            size, repetitions, avg
+            "Size: {:>8}, Variable ({} reps): {:.2} ns/sample (median)",
+            size, repetitions, median_per_sample
         );
-        variable_avgs.push(avg);
+        variable_medians.push(median_per_sample);
     }
 
-    // write variable_avgs out
+    // write variable_medians out
     let variable_csv = manifest_dir
         .parent().unwrap()
         .join("data")
         .join("dynamic_fixed.csv");
-    append_column_to_csv(&variable_csv, "FOREST_OF_TREES", &variable_avgs)
+    append_column_to_csv(&variable_csv, "FOREST_OF_TREES", &variable_medians)
         .expect("Failed to append FOREST_OF_TREES to dynamic_fixed.csv");
 
     Ok(())
 }
+
