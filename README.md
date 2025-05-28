@@ -1,8 +1,9 @@
-# DynamicDiscreteSamplersComparison
+
+# DynamicDiscreteSamplersComparisons
 
 Performance Comparison between different implementations of Dynamic Discrete Samplers.
 
-Three different benchmarks are performed with the supported methods for each of them:
+Three different benchmarks are performed with the supported methods:
 
 - static sampling
 - dynamic sampling with a fixed domain

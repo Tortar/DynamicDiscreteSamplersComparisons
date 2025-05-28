@@ -1,5 +1,5 @@
 
-using Random, BenchmarkTools, Chairmarks, CSV, DataFrames, Statistics
+using Random, Chairmarks, CSV, DataFrames, Statistics
 
 include("ebus/EBUS_bench.jl")
 include("bus_opt/BUS_optimized_bench.jl")
