@@ -7,7 +7,7 @@ ts_static = CSV.read("data/static.csv", DataFrame)
 ts_dynamic_fixed_dom = CSV.read("data/dynamic_fixed.csv", DataFrame)
 ts_dynamic_var_dom = CSV.read("data/dynamic_variable.csv", DataFrame)
 
-Ns = [10^i for i in 3:7]
+Ns = [10^i for i in 3:5]
 
 function plot_vals(Ns, ts, title, ylabel, pname)
     p = nothing

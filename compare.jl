@@ -7,7 +7,7 @@ include("ALIAS_TABLE_bench.jl")
 
 rng = Xoshiro(42)
 
-Ns = [10^i for i in 3:7]
+Ns = [10^i for i in 3:5]
 
 ts_static = Dict(
   "EBUS" => Float64[],
