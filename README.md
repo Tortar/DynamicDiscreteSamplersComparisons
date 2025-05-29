@@ -21,5 +21,12 @@ and then run the benchmarks with
 bash run.sh
 ```
 
-The results will be stored in csv format in the `data` folder, and as plots in the 
-`figures` folder
+resulting in the figures shown below
+
+![static](https://github.com/user-attachments/assets/661dcfcf-8566-45d4-ae13-88bb8f63ca92)
+![dynamic_fixed](https://github.com/user-attachments/assets/71d975c5-e742-4874-9ffc-ba70b147be25)
+![dynamic_variable](https://github.com/user-attachments/assets/79bedfbd-af86-484a-bfaa-2312b2bf0b06)
+
+The results are stored in csv format in the `data` folder, and as plots in the 
+`figures` folder. 
+
