@@ -104,7 +104,7 @@ fn append_column_to_csv(
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut rng = Pcg64::seed_from_u64(42);
-    let sample_sizes: Vec<usize> = (3..=5).map(|i| 10usize.pow(i)).collect();
+    let sample_sizes: Vec<usize> = (3..=7).map(|i| 10usize.pow(i)).collect();
     let mut repetitions = 50;
 
     // --- 1) static (fixed) sampling ---

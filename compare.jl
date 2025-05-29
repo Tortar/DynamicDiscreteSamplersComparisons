@@ -9,7 +9,7 @@ median_time(b) = median([x.time for x in b.samples])
 
 rng = Xoshiro(42)
 
-Ns = [10^i for i in 3:5]
+Ns = [10^i for i in 3:7]
 
 ts_static = Dict(
   "EBUS" => Float64[],

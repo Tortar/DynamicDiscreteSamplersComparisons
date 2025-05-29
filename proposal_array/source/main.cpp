@@ -138,7 +138,7 @@ int main() {
     std::vector<double> dynamic_fixed_times;
     std::vector<double> dynamic_variable_times;
 
-    for (int exp = 3; exp <= 5; ++exp) {
+    for (int exp = 3; exp <= 7; ++exp) {
         size_t size = static_cast<size_t>(std::pow(10, exp));
 
         std::vector<double> static_ns;

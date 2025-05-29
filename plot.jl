@@ -19,7 +19,7 @@ ts_dynamic_var_dom = select(ts_dynamic_var_dom, [:EBUS, :PROPOSAL_ARRAY])
 rename_map = Dict(:EBUS => :EBUS, :PROPOSAL_ARRAY => :DPA)
 rename!(ts_dynamic_var_dom, rename_map)
 
-Ns = [10^i for i in 3:5]
+Ns = [10^i for i in 3:7]
 
 function plot_vals(Ns, ts, title, ylabel, pname)
     p = nothing
