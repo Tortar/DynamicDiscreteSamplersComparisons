@@ -28,7 +28,7 @@ function plot_vals(Ns, ts, title, xlabel, ylabel, pname)
             p = plot(Ns, ts[!, k], xscale=:log10, marker=:circle, xticks=Ns, 
                  xlabel=xlabel, ylabel=ylabel,
                  title=title, label=(k == "DPA" ? (string(k) * "*") : (k == "BUS_jl" ? "BUS-OPT" : string(k))),
-                 ylims=(0, Inf), widen = true)
+                 ylims=(0, Inf), widen = true, legend=:topleft, right_margin=10Plots.mm)
         else
             plot!(Ns, ts[!, k], marker=:circle, label=(k == "DPA" ? (string(k) * "*") : (k == "BUS_jl" ? "BUS-OPT" : string(k))),
                 ylims=(0, Inf), widen = true)
