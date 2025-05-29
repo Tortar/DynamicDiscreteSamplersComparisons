@@ -27,9 +27,11 @@ function plot_vals(Ns, ts, title, ylabel, pname)
         if i == 1
             p = plot(Ns, ts[!, k], xscale=:log10, marker=:circle, xticks=Ns, 
                  xlabel="starting sampler size", ylabel=ylabel,
-                 title=title, label=(k == "DPA" ? (string(k) * "*") : string(k)))
+                 title=title, label=(k == "DPA" ? (string(k) * "*") : string(k)),
+                 ylims=(0, Inf), widen = true)
         else
-            plot!(Ns, ts[!, k], marker=:circle, label=(k == "DPA" ? (string(k) * "*") : string(k)))
+            plot!(Ns, ts[!, k], marker=:circle, label=(k == "DPA" ? (string(k) * "*") : string(k)),
+                ylims=(0, Inf), widen = true)
         end
     end
     savefig(p, "figures/" * pname * ".pdf")
