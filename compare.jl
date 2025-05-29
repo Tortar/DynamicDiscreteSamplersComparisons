@@ -13,7 +13,7 @@ Ns = [10^i for i in 3:5]
 
 ts_static = Dict(
   "EBUS" => Float64[],
-  "BUS_opt" => Float64[],
+  "BUS_jl" => Float64[],
   "ALIAS_TABLE" => Float64[]
 )
 for N in Ns
@@ -23,7 +23,7 @@ for N in Ns
 
     ds = initialize_sampler_BUS_opt(rng, N)
     t_static_BUS_opt = 10^9 * median_time(@be static_samples_BUS_opt($rng, $ds, $N)) / N
-    push!(ts_static["BUS_opt"], t_static_BUS_opt)
+    push!(ts_static["BUS_jl"], t_static_BUS_opt)
 
     al = initialize_ALIAS_TABLE(rng, N)
     t_static_AL = 10^9 * median_time(@be static_samples_ALIAS_TABLE($rng, $al, $N)) / N
@@ -44,7 +44,7 @@ for N in Ns
 
     ds = initialize_sampler_BUS_opt(rng, N)
     t_dynamic_fixed_dom_BUS_opt = 10^9 * median_time(@be dynamic_samples_fixed_dom_BUS_opt($rng, $ds, $N)) / N
-    push!(ts_dynamic_fixed_dom["BUS_opt"], t_dynamic_fixed_dom_BUS_opt)
+    push!(ts_dynamic_fixed_dom["BUS_jl"], t_dynamic_fixed_dom_BUS_opt)
 end
 df = DataFrame(ts_dynamic_fixed_dom)
 file = "data/dynamic_fixed.csv"
@@ -52,7 +52,7 @@ CSV.write(file, df; append = isfile(file), writeheader = true)
 
 ts_dynamic_var_dom = Dict(
   "EBUS" => Float64[],
-  "BUS_opt" => Float64[]
+  "BUS_jl" => Float64[]
 )
 for N in Ns
 	t_dynamic_var_dom_EBUS = @be initialize_weights_EBUS(rng, ResizableWeights, N) dynamic_samples_variable_dom_EBUS($rng, _, $N) evals=1
@@ -63,7 +63,7 @@ for N in Ns
     t_dynamic_var_dom_BUS_opt = @be initialize_sampler_BUS_opt(rng, N) dynamic_samples_variable_dom_BUS_opt($rng, _, $N) evals=1
     t_dynamic_var_dom_BUS_opt = median_time(t_dynamic_var_dom_BUS_opt)
     t_dynamic_var_dom_BUS_opt *= 10^9 / (9*N)
-    push!(ts_dynamic_var_dom["BUS_opt"], t_dynamic_var_dom_BUS_opt)
+    push!(ts_dynamic_var_dom["BUS_jl"], t_dynamic_var_dom_BUS_opt)
 end
 df = DataFrame(ts_dynamic_var_dom)
 file = "data/dynamic_variable.csv"
