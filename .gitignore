@@ -3,5 +3,6 @@ target/
 forest_of_trees/Cargo.lock
 proposal_array/build
 proposal_array/CMakeFiles
+bus/WSS-WIRS/build
+bus/WSS-WIRS/CMakeFiles
 Manifest.toml
-

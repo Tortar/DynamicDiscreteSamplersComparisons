@@ -21,6 +21,17 @@ cmake --build .
 cd ..
 cd ..
 
+cd bus
+cd WSS-WIRS
+rm -r build
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build .
+./bench_sampling
+cd ..
+cd ..
+cd ..
+
 mkdir -p figures
 
 julia --project=. plot.jl
