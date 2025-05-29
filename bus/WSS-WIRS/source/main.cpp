@@ -72,22 +72,21 @@ void append_column_in_place(const std::string& file_path, const std::vector<doub
 }
 
 // Function to set up the BucketMethod with random weights
-BucketMethod setup(XoshiroCpp::Xoroshiro128Plus& rng, int n) {
+BucketMethod setup_sampler(int n, XoshiroCpp::Xoroshiro128Plus& rng) {
     vector<Element> elements;
     elements.reserve(n);
-
 
     std::normal_distribution<double> weight_dist(0.0, 1.0);
 
     for (int i = 0; i < n; ++i) {
-        Element e(i, i, weight_dist(rng));
+        Element e(i, i, std::abs(weight_dist(rng)));
         elements.emplace_back(e);
     }
 
     return BucketMethod(n, elements);
 }
 
-vector<int> sample_fixed(XoshiroCpp::Xoroshiro128Plus& rng, BucketMethod& bucket, int n) {
+vector<int> benchmark_sample_static(XoshiroCpp::Xoroshiro128Plus& rng, BucketMethod& bucket, int n) {
     vector<int> samples;
     samples.reserve(n);
 
@@ -98,7 +97,7 @@ vector<int> sample_fixed(XoshiroCpp::Xoroshiro128Plus& rng, BucketMethod& bucket
     return samples;
 }
 
-vector<int> sample_variable(XoshiroCpp::Xoroshiro128Plus& rng, BucketMethod& bucket, int n) {
+vector<int> benchmark_sample_dynamic_fixed(XoshiroCpp::Xoroshiro128Plus& rng, BucketMethod& bucket, int n) {
     vector<int> samples;
     samples.reserve(n);
 
@@ -108,49 +107,50 @@ vector<int> sample_variable(XoshiroCpp::Xoroshiro128Plus& rng, BucketMethod& buc
     for (int i = 0; i < n; ++i) {
     	samples.push_back(bucket.random_sample_value());
         int j = int_dist(rng);
-        bucket.delete_element(j);
-        Element e(j, j, weight_dist(rng));
-        bucket.insert_element(e);
+        Element e(j, j, std::abs(weight_dist(rng)));
+        bucket.update_weight(j, e);
     }
     
     return samples;
 }
 
-// Benchmarking the setup and sampling functions
-void benchmark() {
+std::vector<int> benchmark_sample_dynamic_variable(XoshiroCpp::Xoroshiro128Plus& rng, BucketMethod& bucket, int n) {
+
+    std::vector<int> samples;
+   samples.reserve(9*n);
+
+    std::normal_distribution<double> weight_dist(0.0, 1.0);    
+
+    for (size_t i = 0; i < 9*n; ++i) {
+        samples.push_back(bucket.random_sample_value());
+        std::uniform_int_distribution<size_t> index_dist(0, i);
+        size_t index = n+index_dist(rng);
+        double new_weight = std::abs(weight_dist(rng));
+        Element e(index, index, new_weight);
+
+        if (bucket.position_map.find(index) != bucket.position_map.end()){
+            bucket.update_weight(index, e);
+        }
+        else{
+            bucket.insert_element(e);
+        }
+    }
+
+    return samples;
+}
+
+
+int main() {
     constexpr uint64_t seed = 42;
     XoshiroCpp::Xoroshiro128Plus rng(seed);
 
-    for (int s_exp = 3; s_exp <= 8; ++s_exp) {
-        int s = static_cast<int>(pow(10, s_exp));
-
-        // Benchmark fixed sampling
-        BucketMethod bucket_fixed = setup(rng, s);
-        auto start_fixed = chrono::high_resolution_clock::now();
-        sample_fixed(rng, bucket_fixed, s);
-        auto end_fixed = chrono::high_resolution_clock::now();
-        double time_fixed = chrono::duration_cast<chrono::nanoseconds>(end_fixed - start_fixed).count() / static_cast<double>(s);
-
-        // Benchmark variable sampling
-        BucketMethod bucket_variable = setup(rng, s);
-        auto start_variable = chrono::high_resolution_clock::now();
-        sample_variable(rng, bucket_variable, s);
-        auto end_variable = chrono::high_resolution_clock::now();
-        double time_variable = chrono::duration_cast<chrono::nanoseconds>(end_variable - start_variable).count() / static_cast<double>(s);
-
-        cout << time_fixed << " " << time_variable << endl;
-    }
-}
-
-int main() {
-    std::mt19937 rng(42);
     int repetitions = 50;
 
     std::vector<double> static_times;
     std::vector<double> dynamic_fixed_times;
     std::vector<double> dynamic_variable_times;
 
-    for (int exp = 3; exp <= 5; ++exp) {
+    for (int exp = 3; exp <= 7; ++exp) {
         size_t size = static_cast<size_t>(std::pow(10, exp));
 
         std::vector<double> static_ns;
@@ -165,10 +165,11 @@ int main() {
 
             // Benchmark static sampling
             auto fixed_start = std::chrono::high_resolution_clock::now();
-            auto fixed_samples = benchmark_sample_static(sampler1, rng, size);
+            auto fixed_samples = benchmark_sample_static(rng, sampler1, size);
             auto fixed_end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double, std::nano> fixed_time = fixed_end - fixed_start;
             static_ns.push_back(fixed_time.count() / size);
+
         }
 
         auto sampler2 = setup_sampler(size, rng);
@@ -177,22 +178,23 @@ int main() {
 
             // Benchmark dynamic fixed sampling
             auto variable_start = std::chrono::high_resolution_clock::now();
-            auto variable_samples = benchmark_sample_dynamic_fixed(sampler2, rng, size);
+            auto variable_samples = benchmark_sample_dynamic_fixed(rng, sampler2, size);
             auto variable_end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double, std::nano> variable_time = variable_end - variable_start;
             dynamic_fixed_ns.push_back(variable_time.count() / size);
+
         }
         
         auto sampler3 = setup_sampler(size, rng);
-
+        
         for (int rep = 1; rep <= repetitions; ++rep) {
-  
             // Benchmark dynamic variable sampling
             auto variable2_start = std::chrono::high_resolution_clock::now();
-            auto variable2_samples = benchmark_sample_dynamic_variable(sampler3, rng, size);
+            auto variable2_samples = benchmark_sample_dynamic_variable(rng, sampler3, size);
             auto variable2_end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double, std::nano> variable2_time = variable2_end - variable2_start;
             dynamic_variable_ns.push_back(variable2_time.count() / (9*size));
+        
         }
 
         static_times.push_back(median(static_ns));
@@ -201,7 +203,7 @@ int main() {
 
     }
 
-    const std::string data_dir = "../../data/";
+    const std::string data_dir = "../../../data/";
 
     try {
         append_column_in_place(data_dir + "static.csv", static_times);

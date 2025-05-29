@@ -10,6 +10,8 @@
 #include <chrono>
 #include "XoshiroCpp.hpp"
 #include "robin_hood.h"
+#include "basic_alias.hpp"
+
 //#include "tableBucket.hpp"
 using namespace std;
 
