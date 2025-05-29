@@ -23,11 +23,35 @@ bash run.sh
 
 resulting in the figures shown below
 
-![static](https://github.com/user-attachments/assets/c1fe9b65-a84f-457b-9f92-3318495e7f5e)
+<table width="100%">
+  <tr>
+    <td width="33.3%" align="center">
+      <img
+        src="https://github.com/user-attachments/assets/7b944835-2635-4548-89e2-fae9fd9a2da5"
+        alt="static"
+        width="100%"
+        style="height: auto;"
+      >
+    </td>
+    <td width="33.3%" align="center">
+      <img
+        src="https://github.com/user-attachments/assets/0d59eda3-975f-4efa-8ce8-f476ca10f8de"
+        alt="dynamic_fixed"
+        width="100%"
+        style="height: auto;"
+      >
+    </td>
+    <td width="33.3%" align="center">
+      <img
+        src="https://github.com/user-attachments/assets/823d5354-304f-460b-9c99-9e5b860adbed"
+        alt="dynamic_variable"
+        width="100%"
+        style="height: auto;"
+      >
+    </td>
+  </tr>
+</table>
 
-![dynamic_fixed](https://github.com/user-attachments/assets/e85f3912-fd67-4c51-9b62-74a97d934e3f)
-
-![dynamic_variable](https://github.com/user-attachments/assets/0f42488a-e6dd-4f68-a709-1ab637523add)
 
 
 
