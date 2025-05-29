@@ -23,37 +23,23 @@ bash run.sh
 
 resulting in the figures shown below
 
-<table width="100%">
-  <tr>
-    <td width="33.3%" align="center">
-      <img
-        src="https://github.com/user-attachments/assets/7b944835-2635-4548-89e2-fae9fd9a2da5"
-        alt="static"
-        width="100%"
-        style="height: auto;"
-      >
-    </td>
-    <td width="33.3%" align="center">
-      <img
-        src="https://github.com/user-attachments/assets/0d59eda3-975f-4efa-8ce8-f476ca10f8de"
-        alt="dynamic_fixed"
-        width="100%"
-        style="height: auto;"
-      >
-    </td>
-    <td width="33.3%" align="center">
-      <img
-        src="https://github.com/user-attachments/assets/823d5354-304f-460b-9c99-9e5b860adbed"
-        alt="dynamic_variable"
-        width="100%"
-        style="height: auto;"
-      >
-    </td>
-  </tr>
-</table>
-
-
-
+<p align="center">
+  <img 
+    src="https://github.com/user-attachments/assets/7b944835-2635-4548-89e2-fae9fd9a2da5" 
+    alt="static" 
+    width="33%" 
+  />
+  <img 
+    src="https://github.com/user-attachments/assets/0d59eda3-975f-4efa-8ce8-f476ca10f8de" 
+    alt="dynamic_fixed" 
+    width="33%" 
+  />
+  <img 
+    src="https://github.com/user-attachments/assets/823d5354-304f-460b-9c99-9e5b860adbed" 
+    alt="dynamic_variable" 
+    width="33%" 
+  />
+</p>
 
 The results are stored in csv format in the `data` folder, and as plots in the 
 `figures` folder. 
