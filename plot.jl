@@ -31,10 +31,10 @@ function plot_vals(Ns, ts, title, xlabel, ylabel, pname)
             p = plot(Ns, ts[!, k], xscale=:log10, marker=markers[i], xticks=Ns, 
                  xlabel=xlabel, ylabel=ylabel, markersize=6, line = (2, :dash),
                  title=title, label=(k == "DPA" ? (string(k) * "*") : (k == "BUS_jl" ? "BUS-OPT" : string(k))),
-                 ylims=(0, Inf), widen = true, legend=:topleft, right_margin=10Plots.mm, color = colors[k])
+                 ylims=(0, Inf), widen = true, legend=:topleft, right_margin=10Plots.mm, color = colors[k], dpi=1000)
         else
             plot!(Ns, ts[!, k], marker=markers[i], label=(k == "DPA" ? (string(k) * "*") : (k == "BUS_jl" ? "BUS-OPT" : string(k))),
-                ylims=(0, Inf), widen = true, color = colors[k], markersize=6, line = (2, :dash),)
+                ylims=(0, Inf), widen = true, color = colors[k], markersize=6, line = (2, :dash), dpi=1000)
         end
     end
     savefig(p, "figures/" * pname * ".pdf")
