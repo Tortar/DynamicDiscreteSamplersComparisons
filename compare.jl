@@ -2,7 +2,7 @@
 using Random, Chairmarks, CSV, DataFrames, Statistics
 
 include("ebus/EBUS_bench.jl")
-include("bus_opt/BUS_optimized_bench.jl")
+include("bus_julia/BUS_optimized_bench.jl")
 include("alias_table/ALIAS_TABLE_bench.jl")
 
 median_time(b) = median([x.time for x in b.samples])
@@ -35,7 +35,7 @@ CSV.write(file, df; append = isfile(file), writeheader = true)
 
 ts_dynamic_fixed_dom = Dict(
   "EBUS" => Float64[],
-  "BUS_opt" => Float64[]
+  "BUS_jl" => Float64[]
 )
 for N in Ns
 	w = initialize_weights_EBUS(rng, FixedSizeWeights, N)
