@@ -48,6 +48,76 @@ fn sample_variable(
     samples
 }
 
+
+fn numerical_check(rng: &mut Pcg64) -> f64 {
+    // Initialize a DynamicWeightedIndex with 3 slots
+    let mut dw_index = DynamicWeightedIndex::new(3);
+
+    // Set the initial weights: [0.1, 0.9, 100000.0]
+    dw_index.set_weight(0, 0.1);
+    dw_index.set_weight(1, 0.9);
+    dw_index.set_weight(2, 9.0001*1.0e15);
+
+    // “Update” index 2 to weight = 0.0
+    dw_index.set_weight(2, 0.0);
+
+    // Draw 1_000 samples and count how often we get index 0
+    let mut count_zero = 0;
+    for _ in 0..1_000_00 {
+            if dw_index.sample(&mut rand::thread_rng()) == Some(0) {
+                count_zero += 1;
+            }
+    }
+     println!("{:}", count_zero);
+
+    // Return the empirical probability of drawing 0
+    (count_zero as f64) / 1_000_00.0
+}
+
+use std::fs::File;
+use std::io::{self, BufWriter, Write};
+
+fn empirical_probabilities(
+    rng: &mut Pcg64,
+    n: usize,
+    t: usize,
+) -> Vec<f64> {
+    let mut dw_index = DynamicWeightedIndex::new(n);
+
+    let mut weights: Vec<f64> = Vec::with_capacity(n);
+    for i in 0..n {
+        let i1 = (i + 1) as f64;
+        let base_i = 2.0 + (1.0 / ((100 * n) as f64)) * i1;
+        let w0 = base_i.powf(1000.0);
+        weights.push(w0);
+    }
+
+    for i in 0..n {
+        dw_index.set_weight(i, weights[i]);
+    }
+
+    for _ in 0..t {
+        for i in 0..n {
+            let i1 = (i + 1) as f64;
+            let base_i = 2.0 + (1.0 / ((100 * n) as f64)) * i1;
+            weights[i] /= base_i;
+            dw_index.set_weight(i, weights[i]);
+        }
+    }
+
+    let num_samples = 1_000_000;
+    let mut counts: Vec<usize> = vec![0; n];
+    for _ in 0..num_samples {
+        if let Some(idx) = dw_index.sample(rng) {
+            counts[idx] += 1;
+        }
+    }
+
+    counts.into_iter()
+        .map(|c| (c as f64) / (num_samples as f64))
+        .collect()
+}
+
 use std::error::Error;
 use csv::{ReaderBuilder, StringRecord, WriterBuilder};
 
@@ -104,6 +174,37 @@ fn append_column_to_csv(
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut rng = Pcg64::seed_from_u64(42);
+
+    let s: usize = 100;
+
+    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
+
+    let numerical = manifest_dir
+        .parent().unwrap()
+        .join("data")
+        .join("forest_of_trees_numerical.csv");
+
+    let file = File::create(numerical)
+        .expect("Failed to create probabilities_mc.csv");
+    let mut writer = BufWriter::new(file);
+
+    for t in 1..=52 {
+        // Compute empirical probabilities for this t
+        let probs: Vec<f64> = empirical_probabilities(&mut rng, s, t);
+
+        // Convert each f64 to string and write as one CSV row
+        let row: Vec<String> = probs.iter()
+            .map(|p| p.to_string())
+            .collect();
+        writeln!(writer, "{}", row.join(","))
+            .expect("Failed to write CSV row");
+        writer.flush();
+        print!("{}", t);
+        io::stdout().flush().unwrap();
+    }
+
+    writer.flush().expect("Failed to flush writer");
+
     let sample_sizes: Vec<usize> = (3..=7).map(|i| 10usize.pow(i)).collect();
     let mut repetitions = 50;
 
@@ -135,7 +236,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     // write static_medians out
-    let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
     let static_csv = manifest_dir
         .parent().unwrap()
         .join("data")

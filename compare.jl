@@ -1,5 +1,5 @@
 
-using Random, Chairmarks, CSV, DataFrames, Statistics
+using Random, Chairmarks, CSV, DataFrames, Statistics, StatsBase
 
 include("ebus/EBUS_bench.jl")
 include("bus_julia/BUS_optimized_bench.jl")
@@ -68,3 +68,25 @@ end
 df = DataFrame(ts_dynamic_var_dom)
 file = "data/dynamic_variable.csv"
 CSV.write(file, df; append = isfile(file), writeheader = true)
+
+function decaying_weights_sampling_exact(n, t)
+    w = FixedSizeWeights(n)
+    for i in 1:n
+        w[i] = (2.0 + (1/(100*n)) * i)^1000
+    end
+    for _ in 1:t
+        for i in 1:n
+            w[i] /= 2.0 + (1/(100*n)) * i
+        end
+    end
+    c = countmap(rand(w) for _ in 1:1000000)
+    allvals = 1:n
+    return [(x in keys(c) ? c[x] : 0) for x in allvals] ./ 1000000
+end
+
+open("data/ebus_numerical.csv", "w") do io
+    for t in 1:500
+        probs = decaying_weights_sampling_exact(100, t)
+        println(io, join(probs, ","))
+    end
+end
