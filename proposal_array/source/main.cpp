@@ -6,6 +6,7 @@
 #include <cmath>
 #include <fstream>
 #include <string>
+#include <iomanip>
 #include "DynamicProposalArrayStar.hpp"
 
 double median(std::vector<double> v) {
@@ -130,8 +131,93 @@ std::vector<size_t> benchmark_sample_dynamic_variable(sampling::DynamicProposalA
     return samples;
 }
 
+double numerical_check(std::mt19937& rng) {
+    std::vector<double> weights;
+    weights.reserve(3);
+    weights.emplace_back(0.1);
+    weights.emplace_back(0.9);
+    weights.emplace_back(100000.0);
+    sampling::DynamicProposalArrayStar sampler(weights);
+    sampler.update(2, 0.0);
+    int c = 0;
+    for (int i = 0; i < 1000; ++i) {
+        if (sampler.sample(rng) == 0) {
+            c += 1;
+        }
+    }
+    return double(c) / 1000.0;
+}
+
+std::vector<double> decaying_weights_sampling(std::size_t n, std::size_t t) {
+    std::vector<double> k(n);
+    for (std::size_t i = 0; i < n; ++i) {
+        double base = 2.0 + (1.0 / (100.0 * double(n))) * double(i + 1);
+        k[i] = std::pow(base, 1000.0);
+    }
+
+    sampling::DynamicProposalArrayStar sampler(k);
+
+    for (std::size_t round = 0; round < t; ++round) {
+        for (std::size_t i = 0; i < n; ++i) {
+            double divisor = 2.0 + (1.0 / (100.0 * double(n))) * double(i + 1);
+            k[i] /= divisor;
+            sampler.update(i, k[i]);
+        }
+    }
+
+    std::mt19937 rng(std::random_device{}());
+    std::vector<std::size_t> counts(n, 0);
+    constexpr std::size_t N_SAMPLES = 1000000;
+    for (std::size_t rep = 0; rep < N_SAMPLES; ++rep) {
+        std::size_t idx = sampler.sample(rng);
+        if (idx < n) {
+            ++counts[idx];
+        }
+    }
+
+    std::vector<double> normalized(n, 0.0);
+    for (std::size_t i = 0; i < n; ++i) {
+        normalized[i] = double(counts[i]) / double(N_SAMPLES);
+    }
+    return normalized;
+}
+
 int main() {
+
+    const std::size_t n = 100;
+    const std::size_t t_max = 51; // it slows down considerably afterwards, so that it seems stuck
+
+    // Open an output CSV file. Each row will be the 1000 normalized values for a given t.
+    std::ofstream fout("../../data/proposal_array_numerical.csv");
+    if (!fout.is_open()) {
+        std::cerr << "Error: could not open decay_normalized.csv for writing.\n";
+        return 1;
+    }
+
+    // We choose to write each double with 8 digits after the decimal point.
+    fout << std::fixed << std::setprecision(8);
+
+    // Loop t from 1..500
+    for (std::size_t t = 1; t <= t_max; ++t) {
+        // Get the normalized 1000‐length vector for this (n=1000, current t)
+        auto normalized = decaying_weights_sampling(n, t);
+
+        // Write them as a single CSV row: normalized[0],normalized[1],...,normalized[999]\n
+        for (std::size_t i = 0; i < normalized.size(); ++i) {
+            fout << normalized[i];
+            if (i + 1 < normalized.size()) {
+                fout << ',';
+            }
+        }
+        fout << '\n';
+
+        fout.flush();
+    }
+
+    fout.close();
+
     std::mt19937 rng(42);
+
     int repetitions = 50;
 
     std::vector<double> static_times;

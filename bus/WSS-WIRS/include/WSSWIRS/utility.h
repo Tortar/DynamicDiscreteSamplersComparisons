@@ -1,7 +1,7 @@
 #pragma once
 
 struct Element {
-	Element(const int& _key, const int& _value, const float& _weight) {
+	Element(const int& _key, const int& _value, const double& _weight) {
 		key = _key;
 		value = _value;
 		weight = _weight;
@@ -23,12 +23,12 @@ struct Element {
 		}
 	}
 	int key; // searched by key
-	float weight;
+	double weight;
 	int value; 
 };
 
 struct Opt {
-	Opt(int _opt_type, int _key, int _value, float _weight) {
+	Opt(int _opt_type, int _key, int _value, double _weight) {
 		opt_type = _opt_type;
 		key = _key;
 		value = _value;
@@ -36,10 +36,10 @@ struct Opt {
 	}
 	~Opt() {}
 	int opt_type; // searched by key
-	//float weight;
+	//double weight;
 	int key;
 	int value;
-	float weight;
+	double weight;
 	//Element ins_ele;
 };
 

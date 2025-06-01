@@ -74,8 +74,7 @@ public:
         return ceil(log2(num));
     }
 
-    BucketMethod(int num, vector<Element>& all_ele) : gen(rd()) {
-        constexpr std::uint64_t seed = 777;
+    BucketMethod(int seed, int num, vector<Element>& all_ele) : gen(rd()) {
         rng = XoshiroCpp::Xoroshiro128Plus(seed);
         tot_weight = 0;
         ele_size = 0;

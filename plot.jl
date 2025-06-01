@@ -20,13 +20,13 @@ rename_map = Dict(:EBUS => :EBUS, :PROPOSAL_ARRAY => :DPA, :BUS => :BUS)
 rename!(ts_dynamic_var_dom, rename_map)
 
 markers = Dict("EBUS" => :circle, "FT" => :rect, "DPA" => :utriangle, "BUS" => :xcross)
-colors = Dict("EBUS" => 1, "FT" => 2, "DPA" => 3, "BUS" => 4)
+colors = Dict("EBUS" => 4, "FT" => 2, "DPA" => 1, "BUS" => 3)
 
 Ns = [10^i for i in 3:7]
 
 function plot_vals(Ns, ts, title, xlabel, ylabel, pname)
     p = nothing
-    for (i, k) in enumerate(names(ts))
+    for (i, k) in enumerate(title != "Performance on Dynamic Sampling with Variable Range" ? ["FT", "DPA", "BUS", "EBUS"] : ["DPA", "BUS", "EBUS"])
         if i == 1
             p = plot(Ns, ts[!, k], xscale=:log10, marker=markers[k], xticks=Ns, 
                  xlabel=xlabel, ylabel=ylabel, markersize=6, line = (2, :dash),
@@ -49,3 +49,71 @@ plot_vals(Ns, ts_dynamic_fixed_dom, "Performance on Dynamic Sampling with Fixed 
 
 plot_vals(Ns, ts_dynamic_var_dom, "Performance on Dynamic Sampling with Variable Range", "starting sampler size",
     "time per single update & draw (ns)", "dynamic_variable")
+
+### numerical
+
+function decaying_weights_sampling_probability(n, t)
+    p = BigFloat[]
+    for i in 1:n
+        push!(p, BigFloat((2.0 + (1/(100*n)) * i))^(1000-t))
+    end
+    return Float64.(p ./ sum(p))
+end
+
+function js_divergence(a, b)
+    js = Float64[]
+    for (ai, bi) in zip(a, b)
+    u = (ai + bi) / 2
+    ta = iszero(ai) ? 0.0 : ai * log2(ai) / 2
+    tb = iszero(bi) ? 0.0 : bi * log2(bi) / 2
+    tu = iszero(u) ? 0.0 : u * log2(u)
+    push!(js, ta + tb - tu)
+   end
+   return sum(js)
+end
+
+df_EBUS = CSV.read("data/ebus_numerical.csv", DataFrame, header=false)
+M_EBUS = Matrix(df_EBUS)
+
+df_FT = CSV.read("data/forest_of_trees_numerical.csv", DataFrame, header=false)
+M_FT = Matrix(df_FT)
+
+df_DPA = CSV.read("data/proposal_array_numerical.csv", DataFrame, header=false)
+M_DPA = Matrix(df_DPA)
+
+df_BUS = CSV.read("data/bus_numerical.csv", DataFrame, header=false)
+M_BUS = Matrix(df_BUS)
+
+js_EBUS = []
+js_FT = []
+js_DPA = []
+js_BUS = []
+
+for i in 1:100
+    p = decaying_weights_sampling_probability(100, i)
+    push!(js_EBUS, js_divergence(M_EBUS[i, :], p))
+    i <= 51 && push!(js_FT, js_divergence(M_FT[i, :], p))
+    i <= 51 && push!(js_DPA, js_divergence(M_DPA[i, :], p))
+    i <= 50 && push!(js_BUS, js_divergence(M_BUS[i, :], p))
+end
+
+p = plot(js_DPA, line = (2, :dot), label="DPA*", 
+    title="JS Divergence of Empirical vs. Theoretical Distribution",
+    ylabel="divergence", xlabel="decay step")
+plot!(js_FT, line = (2, :dash), label="FT")
+plot!(js_BUS, line = (2, :dashdot), label="BUS")
+plot!(js_EBUS, line = (2, :solid), label="EBUS")
+savefig(p, "figures/numerical" * ".pdf")
+savefig(p, "figures/numerical" * ".png")
+
+k = 1:100
+l = @layout [a b; d e]
+p2 = bar(k, M_EBUS[50, :], bar_width = 0.6, title = "EBUS", legend = false, ylabel="probability")
+p3 = bar(k, M_FT[50, :], bar_width = 0.6, title = "FT", legend = false)
+p4 = bar(k, M_DPA[50, :], bar_width = 0.6, title = "DPA", legend = false, xlabel="index", ylabel="probability")
+p5 = bar(k, M_BUS[50, :], bar_width = 0.6, title = "BUS", legend = false, xlabel="index")
+p = plot(p2, p3, p4, p5, layout = l, size=(900, 600), 
+    plot_title="Empirical Probability Distributions at 50th Decay Step", plot_titlevspan=0.08,)
+
+savefig(p, "figures/numerical50" * ".pdf")
+savefig(p, "figures/numerical50" * ".png")

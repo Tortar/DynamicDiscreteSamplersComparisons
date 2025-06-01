@@ -83,7 +83,9 @@ BucketMethod setup_sampler(int n, XoshiroCpp::Xoroshiro128Plus& rng) {
         elements.emplace_back(e);
     }
 
-    return BucketMethod(n, elements);
+    std::uniform_int_distribution<size_t> seed_choice(0, 100000);
+
+    return BucketMethod(seed_choice(rng), n, elements);
 }
 
 vector<int> benchmark_sample_static(XoshiroCpp::Xoroshiro128Plus& rng, BucketMethod& bucket, int n) {
@@ -139,8 +141,130 @@ std::vector<int> benchmark_sample_dynamic_variable(XoshiroCpp::Xoroshiro128Plus&
     return samples;
 }
 
+double numerical_check() {
+    std::vector<Element> elements;
+    elements.reserve(3);
+    elements.emplace_back(0, 0, 0.1);
+    elements.emplace_back(1, 1, 0.9);
+    elements.emplace_back(2, 2, 9.0*1.0e15);
+    std::random_device rd;
+     std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(1, 100);
+    BucketMethod bucket(distrib(gen), 3, elements);
+    bucket.update_weight(2, Element(2, 2, 0.0));
+    int count = 0;
+    for (int i = 0; i < 1000000; ++i) {
+        if (bucket.random_sample_value() == 0) {
+            count += 1;
+        }
+    }
+    return double(count) / 1000000.0;
+}
+
+#include <iostream>
+#include <vector>
+#include <random>
+#include <chrono>
+#include <cmath>
+#include <fstream>
+#include <iomanip>
+#include "XoshiroCpp.hpp"
+#include "QuickBucket.hpp"
+
+using namespace std;
+
+// --------------------------------------------------------------------------------
+// decaying_weights_sampling (normalized), using BucketMethod interface:
+//
+//   • Build k[i] = (2.0 + (1/(100*n))*(i+1))^1000 for i = 0..n-1
+//   • Construct a BucketMethod with those initial weights (Element(i, i, k[i])).
+//   • Perform t “decay” rounds: for each i=0..n-1, divide k[i] by
+//       (2.0 + (1/(100*n))*(i+1))
+//     and call bucket.update_weight(i, Element(i, i, k[i])).
+//   • Draw 1,000,000 samples via bucket.random_sample_value(), tally raw counts.
+//   • Normalize counts → probabilities (each count / total samples).
+//   • Return a std::vector<double> of length n with those normalized frequencies.
+// --------------------------------------------------------------------------------
+std::vector<double> decaying_weights_sampling(int n, int t) {
+    // 1) Build initial weight vector k[0..n-1].
+    std::vector<double> k(n);
+    for (int i = 0; i < n; ++i) {
+        double base = 2.0 + (1.0 / (100.0 * double(n))) * double(i + 1);
+        k[i] = std::pow(base, 1000.0);
+    }
+
+    // 2) Set up Xoroshiro128Plus RNG and BucketMethod
+    XoshiroCpp::Xoroshiro128Plus rng(std::chrono::high_resolution_clock::now()
+                                         .time_since_epoch()
+                                         .count());
+    // Build vector<Element> for BucketMethod constructor
+    std::vector<Element> elements;
+    elements.reserve(n);
+    for (int i = 0; i < n; ++i) {
+        // Element(index, value, weight)
+        elements.emplace_back(i, i, k[i]);
+    }
+    // Choose a random seed for BucketMethod
+    std::uniform_int_distribution<uint64_t> seed_dist(0, UINT64_MAX);
+    uint64_t bucket_seed = seed_dist(rng);
+    BucketMethod bucket(bucket_seed, n, elements);
+
+    // 3) Perform t “decay” rounds
+    for (int round = 0; round < t; ++round) {
+        for (int i = 0; i < n; ++i) {
+            double divisor = 2.0 + (1.0 / (100.0 * double(n))) * double(i + 1);
+            k[i] /= divisor;
+            // Update the i-th element’s weight
+            bucket.update_weight(i, Element(i, i, k[i]));
+        }
+    }
+
+    // 4) Draw 1,000,000 samples and tally raw counts
+    constexpr int N_SAMPLES = 1000000;
+    std::vector<std::size_t> counts(n, 0);
+    for (int rep = 0; rep < N_SAMPLES; ++rep) {
+        int sampled_value = bucket.random_sample_value();
+        if (sampled_value >= 0 && sampled_value < n) {
+            ++counts[sampled_value];
+        }
+    }
+
+    std::vector<double> normalized(n, 0.0);
+    for (int i = 0; i < n; ++i) {
+        normalized[i] = double(counts[i]) / N_SAMPLES;
+    }
+    return normalized;
+}
 
 int main() {
+
+    const int n = 100;
+    const int t_max = 50; // after that it stops to work
+
+    // Open output CSV. Each row: 1000 normalized values for a given t.
+    std::ofstream fout("../../../data/bus_numerical.csv");
+    if (!fout.is_open()) {
+        std::cerr << "Error: could not open the file for writing.\n";
+        return 1;
+    }
+    fout << std::fixed << std::setprecision(8);
+
+    for (int t = 1; t <= t_max; ++t) {
+        auto normalized = decaying_weights_sampling(n, t);
+
+        // Write one CSV row
+        for (int i = 0; i < n; ++i) {
+            fout << normalized[i];
+            if (i + 1 < n) fout << ',';
+        }
+        fout << '\n';
+        fout.flush();  // ensure each row is pushed to disk immediately
+
+        std::cerr << "Completed t = " << t << " / " << t_max << "\n";
+    }
+
+    fout.close();
+
     constexpr uint64_t seed = 42;
     XoshiroCpp::Xoroshiro128Plus rng(seed);
 
