@@ -97,12 +97,12 @@ for i in 1:100
     i <= 50 && push!(js_BUS, js_divergence(M_BUS[i, :], p))
 end
 
-p = plot(js_DPA, line = (2.5, :dot), label="DPA*", 
+p = plot(js_FT, line = (2.5, :dot), label="FT", 
     title="JS Divergence of Empirical vs. Theoretical Distribution",
-    ylabel="divergence", xlabel="decay step", right_margin=10Plots.mm, dpi=1000)
-plot!(js_FT, line = (2.5, :dash), label="FT")
-plot!(js_BUS, line = (2.5, :dashdot), label="BUS")
-plot!(js_EBUS, line = (2.5, :solid), label="EBUS")
+    ylabel="divergence", xlabel="decay step", right_margin=10Plots.mm, dpi=1000, legend=:topleft, color = colors["FT"])
+plot!(js_DPA, line = (2.5, :dash), label="DPA*", color = colors["DPA"])
+plot!(js_BUS, line = (2.5, :dashdot), label="BUS", color = colors["BUS"])
+plot!(js_EBUS, line = (2.5, :solid), label="EBUS", color = colors["EBUS"])
 savefig(p, "figures/numerical" * ".pdf")
 savefig(p, "figures/numerical" * ".png")
 
@@ -110,13 +110,13 @@ k = 1:100
 l = @layout [a b; d e]
 
 yticks = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06]
-p2 = bar(k, M_EBUS[50, :], bar_width = 0.6, title = "EBUS", legend = false, ylabel="probability", yticks=yticks, ylims=(0, 0.06))
-p3 = bar(k, M_FT[50, :], bar_width = 0.6, title = "FT", legend = false, yticks=yticks, ylims=(0, 0.06))
-p4 = bar(k, M_DPA[50, :], bar_width = 0.6, title = "DPA", legend = false, xlabel="index", ylabel="probability", yticks=yticks, ylims=(0, 0.06))
-p5 = bar(k, M_BUS[50, :], bar_width = 0.6, title = "BUS", legend = false, xlabel="index", yticks=yticks, ylims=(0, 0.06))
-p = plot(p2, p3, p4, p5, layout = l, size=(900, 600), 
-    plot_title="Empirical Probability Distributions at 50th Decay Step", 
-    plot_titlevspan=0.08, dpi=1000)
+p2 = bar(k, M_EBUS[50, :], bar_width = 0.6, title = "EBUS", legend = false, ylabel="probability", yticks=yticks, ylims=(0, 0.06), linecolor=1,color=1)
+p3 = bar(k, M_BUS[50, :], bar_width = 0.6, title = "BUS", legend = false, yticks=yticks, ylims=(0, 0.06), linecolor=1,color=1)
+p4 = bar(k, M_FT[50, :], bar_width = 0.6, title = "FT", legend = false, xlabel="index", ylabel="probability", yticks=yticks, ylims=(0, 0.06), linecolor=1,color=1)
+p5 = bar(k, M_DPA[50, :], bar_width = 0.6, title = "DPA", legend = false, xlabel="index", yticks=yticks, ylims=(0, 0.06), linecolor=1,color=1)
+p = plot(p2, p3, p4, p5, layout = l, 
+    plot_title="Empirical Distributions at 50th Decay Step", 
+    plot_titlevspan=0.1, dpi=1000, plot_titlefontsize=14)
 
 savefig(p, "figures/numerical50" * ".pdf")
 savefig(p, "figures/numerical50" * ".png")
