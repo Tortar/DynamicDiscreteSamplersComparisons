@@ -3,7 +3,14 @@
 
 Performance Comparison between different implementations of Dynamic Discrete Samplers.
 
-Three different benchmarks are performed with the supported methods:
+Currently, it compares four algorithms:
+
+- EBUS: https://github.com/LilithHafner/DynamicDiscreteSamplers.jl
+- BUS: https://github.com/CUHK-DBGroup/WSS-WIRS
+- FT: https://github.com/manpen/dynamic-weighted-index
+- DPA*: https://github.com/Daniel-Allendorf/proposal-array
+
+Three different benchmarks are performed:
 
 - static sampling
 - dynamic sampling with a fixed domain
@@ -23,4 +30,5 @@ bash run.sh
 
 The results are stored in csv format in the `data` folder, and as plots in the 
 `figures` folder. 
+
 
