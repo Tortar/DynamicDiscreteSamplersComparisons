@@ -5,10 +5,10 @@ Performance Comparison between different implementations of Dynamic Discrete Sam
 
 Currently, it compares four algorithms:
 
-- EBUS: https://github.com/LilithHafner/DynamicDiscreteSamplers.jl
-- BUS: https://github.com/CUHK-DBGroup/WSS-WIRS
-- FT: https://github.com/manpen/dynamic-weighted-index
-- DPA*: https://github.com/Daniel-Allendorf/proposal-array
+- EBUS (https://github.com/LilithHafner/DynamicDiscreteSamplers.jl)
+- BUS (https://github.com/CUHK-DBGroup/WSS-WIRS)
+- FT (https://github.com/manpen/dynamic-weighted-index)
+- DPA* (https://github.com/Daniel-Allendorf/proposal-array)
 
 Three different benchmarks are performed:
 
