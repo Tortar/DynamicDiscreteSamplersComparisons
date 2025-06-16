@@ -17,7 +17,7 @@ ts_static = Dict(
   "ALIAS_TABLE" => Float64[]
 )
 for N in Ns
-	w = initialize_weights_EBUS(rng, FixedSizeWeights, N)
+	w = initialize_weights_EBUS(rng, FixedSizeWeightVector, N)
 	t_static_EBUS = 10^9 * median_time(@be static_samples_EBUS($rng, $w, $N) seconds=20) / N
 	push!(ts_static["EBUS"], t_static_EBUS)
 
@@ -38,7 +38,7 @@ ts_dynamic_fixed_dom = Dict(
   "BUS_jl" => Float64[]
 )
 for N in Ns
-	w = initialize_weights_EBUS(rng, FixedSizeWeights, N)
+	w = initialize_weights_EBUS(rng, FixedSizeWeightVector, N)
 	t_dynamic_fixed_dom_EBUS = 10^9 * median_time(@be dynamic_samples_fixed_dom_EBUS($rng, $w, $N) seconds=20) / N
 	push!(ts_dynamic_fixed_dom["EBUS"], t_dynamic_fixed_dom_EBUS)
 
@@ -55,7 +55,7 @@ ts_dynamic_var_dom = Dict(
   "BUS_jl" => Float64[]
 )
 for N in Ns
-	t_dynamic_var_dom_EBUS = @be initialize_weights_EBUS(rng, ResizableWeights, N) dynamic_samples_variable_dom_EBUS($rng, _, $N) evals=1 seconds=20
+	t_dynamic_var_dom_EBUS = @be initialize_weights_EBUS(rng, WeightVector, N) dynamic_samples_variable_dom_EBUS($rng, _, $N) evals=1 seconds=20
 	t_dynamic_var_dom_EBUS = median_time(t_dynamic_var_dom_EBUS)
 	t_dynamic_var_dom_EBUS *= 10^9 / (9*N)
 	push!(ts_dynamic_var_dom["EBUS"], t_dynamic_var_dom_EBUS)
@@ -70,7 +70,7 @@ file = "data/dynamic_variable.csv"
 CSV.write(file, df; append = isfile(file), writeheader = true)
 
 function decaying_weights_sampling_exact(n, t)
-    w = FixedSizeWeights(n)
+    w = FixedSizeWeightVector(n)
     for i in 1:n
         w[i] = (2.0 + (1/(100*n)) * i)^1000
     end

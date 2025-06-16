@@ -110,10 +110,17 @@ k = 1:100
 l = @layout [a b; d e]
 
 yticks = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06]
+p_theory = decaying_weights_sampling_probability(100, 50)
+p_theory = [p_theory..., p_theory[end]]
 p2 = bar(k, M_EBUS[50, :], bar_width = 0.6, title = "EBUS", legend = false, ylabel="probability", yticks=yticks, ylims=(0, 0.06), linecolor=1,color=1)
 p3 = bar(k, M_BUS[50, :], bar_width = 0.6, title = "BUS", legend = false, yticks=yticks, ylims=(0, 0.06), linecolor=1,color=1)
 p4 = bar(k, M_FT[50, :], bar_width = 0.6, title = "FT", legend = false, xlabel="index", ylabel="probability", yticks=yticks, ylims=(0, 0.06), linecolor=1,color=1)
 p5 = bar(k, M_DPA[50, :], bar_width = 0.6, title = "DPA", legend = false, xlabel="index", yticks=yticks, ylims=(0, 0.06), linecolor=1,color=1)
+plot!(p2, 0.5:1.0:100.5, p_theory; linestyle = [:dot, :solid, :dot], color = :red, linetype = :steppost)
+plot!(p3, 0.5:1.0:100.5, p_theory; linestyle = [:dot, :solid, :dot], color = :red, linetype = :steppost)
+plot!(p4, 0.5:1.0:100.5, p_theory; linestyle = [:dot, :solid, :dot], color = :red, linetype = :steppost)
+plot!(p5, 0.5:1.0:100.5, p_theory; linestyle = [:dot, :solid, :dot], color = :red, linetype = :steppost)
+
 p = plot(p2, p3, p4, p5, layout = l, 
     plot_title="Empirical Distributions at 50th Decay Step", 
     plot_titlevspan=0.1, dpi=1000, plot_titlefontsize=14)
