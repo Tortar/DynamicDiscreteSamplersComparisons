@@ -1,5 +1,5 @@
 
-using DynamicDiscreteSamplers
+using WeightVectors
 
 function initialize_weights_EBUS(rng, WType, N)
 	w = WType(N)
