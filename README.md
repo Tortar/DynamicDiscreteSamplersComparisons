@@ -17,8 +17,7 @@ Three performance benchmarks and one exactness benchmark are performed:
 - performance test on dynamic sampling with a variable domain
 - exactness test by an exponential decay strategy
 
-For more details, consult the associated paper referred in the citation
-section. 
+For more information, refer to the paper listed in the citation section.
 
 ## Execution
 
