@@ -29,7 +29,18 @@ bash run.sh
 ```
 
 The results are stored in csv format in the `data` folder, and as plots in the 
-`figures` folder. 
+`figures` folder:
+
+<div style="display: flex; gap: 10px; flex-wrap: wrap;">
+  <img src="https://github.com/user-attachments/assets/d394ae94-c9f6-4255-aaaf-8b170afa66bf" alt="static" style="width: 32%;" />
+  <img src="https://github.com/user-attachments/assets/adf3c0f5-0a20-49a2-b724-89010bb1eb8b" alt="dynamic_fixed" style="width: 32%;" />
+  <img src="https://github.com/user-attachments/assets/258e469c-c606-46a9-9262-8584839be22e" alt="dynamic_variable" style="width: 32%;" />
+</div>
+
+<div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+  <img src="https://github.com/user-attachments/assets/c4461840-a778-4093-9257-51ffded1400b" alt="numerical" style="width: 48%;" />
+  <img src="https://github.com/user-attachments/assets/7e8a97ec-820e-40ae-b94b-7610e68050e1" alt="numerical50" style="width: 48%;" />
+</div>
 
 
 ## Citation
