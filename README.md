@@ -1,7 +1,7 @@
 
 # DynamicDiscreteSamplersComparisons
 
-Performance Comparison between different implementations of Dynamic Discrete Samplers.
+Performance and Exactness Comparisons between different implementations of Dynamic Discrete Samplers.
 
 Currently, it compares four algorithms:
 
@@ -10,11 +10,17 @@ Currently, it compares four algorithms:
 - FT (https://github.com/manpen/dynamic-weighted-index)
 - DPA* (https://github.com/Daniel-Allendorf/proposal-array)
 
-Three different benchmarks are performed:
+Three performance benchmarks and one exactness benchmark are performed:
 
-- static sampling
-- dynamic sampling with a fixed domain
-- dynamic sampling with a variable domain
+- performance test on static sampling
+- performance test on dynamic sampling with a fixed domain
+- performance test on dynamic sampling with a variable domain
+- exactness test by an exponential decay strategy
+
+For more details, consult the associated paper referred in the citation
+section. 
+
+## Execution
 
 To run the benchmarks on Linux, first install the necessary softwares with
 
@@ -27,6 +33,8 @@ and then run the benchmarks with
 ```
 bash run.sh
 ```
+
+## Results
 
 The results are stored in csv format in the `data` folder, and as plots in the 
 `figures` folder:
@@ -41,7 +49,6 @@ The results are stored in csv format in the `data` folder, and as plots in the
   <img src="https://github.com/user-attachments/assets/c4461840-a778-4093-9257-51ffded1400b" alt="numerical" style="width: 48%;" />
   <img src="https://github.com/user-attachments/assets/7e8a97ec-820e-40ae-b94b-7610e68050e1" alt="numerical50" style="width: 48%;" />
 </div>
-
 
 ## Citation
 
