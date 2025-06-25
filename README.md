@@ -1,7 +1,7 @@
 
 # DynamicDiscreteSamplersComparisons
 
-Performance and Exactness Comparisons between different implementations of Dynamic Discrete Samplers.
+Performance and exactness comparisons between different implementations of Dynamic Discrete Samplers.
 
 Currently, it compares four algorithms:
 
