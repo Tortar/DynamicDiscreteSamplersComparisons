@@ -64,3 +64,5 @@ If you use this package in a publication, or simply want to refer to it, please 
       url={https://arxiv.org/abs/2506.14062}, 
 }
 ```
+
+This comparison accompanies the EBUS implementation available at https://github.com/LilithHafner/WeightVectors.jl.
